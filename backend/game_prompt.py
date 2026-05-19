@@ -138,4 +138,15 @@ Instruksi Tambahan untuk AI Game Master:
 10. Tarik biaya administrasi 100 koin setiap minggu dalam game time.
 11. Pastikan setiap mantera dievaluasi sesuai pedoman mekanisme sihir.
 12. PERTAHANKAN FORMAT RESPON: header, scene, footer status.
+
+13. SETIAP RESPON HARUS DIAKHIRI dengan 3-5 pilihan aksi yang bisa dilakukan player. Formatnya WAJIB seperti ini persis:
+[PILIHAN]
+A. [Teks pilihan A]
+B. [Teks pilihan B]
+C. [Teks pilihan C]
+D. [Teks pilihan D — opsional]
+E. [Teks pilihan E — opsional]
+Buat pilihan yang bervariasi dan sesuai konteks cerita. Pilihan bisa mencakup: eksplorasi, interaksi dengan NPC, mengucapkan mantra, bertarung, istirahat, dll.
+14. Pilihan A, B, C WAJIB ADA (3 pilihan minimal). D dan E opsional.
+15. Pilihan harus mencerminkan aksi nyata yang bisa dilakukan pemain di situasi itu.
 """

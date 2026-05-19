@@ -27,6 +27,8 @@ const btnSend = document.getElementById('btn-send');
 const loadingIndicator = document.getElementById('loading-indicator');
 const sessionIdDisplay = document.getElementById('session-id-display');
 const responseCounter = document.getElementById('response-counter');
+const choicesContainer = document.getElementById('choices-container');
+const choicesButtons = document.getElementById('choices-buttons');
 
 // ─── API Calls ───────────────────────────────────────────────────────────────
 
@@ -183,6 +185,37 @@ function updateStatus() {
   responseCounter.textContent = `Respon: ${responseCount}/150`;
 }
 
+// ─── Choice Buttons ──────────────────────────────────────────────────────────
+
+function renderChoices(choices) {
+  choicesButtons.innerHTML = '';
+  choicesContainer.classList.remove('hidden');
+
+  choices.forEach((choice) => {
+    const btn = document.createElement('button');
+    btn.className = 'choice-btn';
+    btn.dataset.label = choice.label;
+    btn.dataset.text = choice.text;
+    btn.innerHTML = `<span class="choice-label">${choice.label}</span><span class="choice-text">${escapeHtml(choice.text)}</span>`;
+    btn.addEventListener('click', () => {
+      selectChoice(choice.text);
+    });
+    choicesButtons.appendChild(btn);
+  });
+}
+
+function clearChoices() {
+  choicesContainer.classList.add('hidden');
+  choicesButtons.innerHTML = '';
+}
+
+function selectChoice(text) {
+  clearChoices();
+  // Send this choice as the player's action
+  playerInput.value = text;
+  sendAction();
+}
+
 // ─── Game Actions ────────────────────────────────────────────────────────────
 
 function startGamePrompt() {
@@ -201,6 +234,7 @@ function startGamePrompt() {
 
 async function beginGame(inputText) {
   setLoading(true);
+  clearChoices();
   try {
     const data = await apiPost('/api/start', { player_input: inputText });
     sessionId = data.session_id;
@@ -210,6 +244,11 @@ async function beginGame(inputText) {
 
     if (data.response) {
       addNaratorMessage(data.response);
+    }
+
+    // Show choices if available
+    if (data.choices && data.choices.length > 0) {
+      renderChoices(data.choices);
     }
 
     playerInput.focus();
@@ -234,6 +273,7 @@ async function sendAction() {
   addPlayerMessage(text);
 
   setLoading(true);
+  clearChoices();
   try {
     const data = await apiPost('/api/action', {
       session_id: sessionId,
@@ -254,6 +294,11 @@ async function sendAction() {
 
     if (data.response) {
       addNaratorMessage(data.response);
+    }
+
+    // Show choices if available
+    if (data.choices && data.choices.length > 0) {
+      renderChoices(data.choices);
     }
 
     gameStarted = data.game_started;

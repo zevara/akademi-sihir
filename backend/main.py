@@ -148,6 +148,7 @@ async def start_game(req: StartRequest):
             },
         ]
         reply = await call_llm(state.messages)
+        narrative, choices = _parse_choices(reply)
         state.messages.append({"role": "assistant", "content": reply})
         state.response_count = 1
     else:
@@ -168,13 +169,15 @@ async def start_game(req: StartRequest):
             },
         ]
         reply = await call_llm(state.messages, max_tokens=1024)
+        narrative, choices = _parse_choices(reply)
         state.messages.append({"role": "assistant", "content": reply})
         state.response_count = 0
 
     save_session(state)
     return {
         "session_id": session_id,
-        "response": reply,
+        "response": narrative,
+        "choices": choices,
         "response_count": state.response_count,
         "game_started": state.game_started,
     }
@@ -200,6 +203,7 @@ async def take_action(req: ActionRequest):
     if not state.game_started:
         state.messages.append({"role": "user", "content": req.player_action})
         reply = await call_llm(state.messages, max_tokens=1536)
+        narrative, choices = _parse_choices(reply)
         state.messages.append({"role": "assistant", "content": reply})
 
         # Check if race has been determined by looking for player_race mention
@@ -213,7 +217,8 @@ async def take_action(req: ActionRequest):
 
         save_session(state)
         return {
-            "response": reply,
+            "response": narrative,
+            "choices": choices,
             "response_count": state.response_count,
             "game_started": state.game_started,
         }
@@ -222,6 +227,7 @@ async def take_action(req: ActionRequest):
     state.messages.append({"role": "user", "content": req.player_action})
 
     reply = await call_llm(state.messages, max_tokens=2048)
+    narrative, choices = _parse_choices(reply)
     state.messages.append({"role": "assistant", "content": reply})
 
     # Manage context window — keep messages manageable
@@ -231,7 +237,8 @@ async def take_action(req: ActionRequest):
     save_session(state)
 
     return {
-        "response": reply,
+        "response": narrative,
+        "choices": choices,
         "response_count": state.response_count,
         "game_started": True,
     }
@@ -277,6 +284,36 @@ async def serve_frontend(path: str):
     if file_path.exists() and file_path.is_file():
         return FileResponse(str(file_path))
     return FileResponse(str(FRONTEND_DIR / "index.html"))
+
+# ─── Choice Parsing ─────────────────────────────────────────────────────────────
+
+def _parse_choices(text: str) -> tuple[str, list[dict]]:
+    """Extract [PILIHAN] section from LLM response.
+
+    Returns (narrative_text, list_of_choices).
+    Each choice: {"label": "A", "text": "Masuk ke gerbang akademi"}
+    """
+    import re
+    # Look for [PILIHAN] or [Pilihan] section
+    match = re.split(r'\n\[?PILIHAN\]?\s*\n', text, flags=re.IGNORECASE)
+    if len(match) < 2:
+        return text, []
+
+    narrative = match[0].strip()
+    choices_section = match[1].strip()
+
+    choices = []
+    # Parse lines like: A. Teks pilihan or A. Teks pilihan
+    for line in choices_section.split('\n'):
+        line = line.strip()
+        m = re.match(r'^([A-Ea-e])[\.\)]\s*(.+)$', line)
+        if m:
+            label = m.group(1).upper()
+            choice_text = m.group(2).strip()
+            choices.append({"label": label, "text": choice_text})
+
+    return narrative, choices
+
 
 # ─── Main ─────────────────────────────────────────────────────────────────────
 
