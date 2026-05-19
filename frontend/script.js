@@ -199,10 +199,10 @@ function startGamePrompt() {
   beginGame(result.trim());
 }
 
-async function beginGame(playerInput) {
+async function beginGame(inputText) {
   setLoading(true);
   try {
-    const data = await apiPost('/api/start', { player_input: playerInput });
+    const data = await apiPost('/api/start', { player_input: inputText });
     sessionId = data.session_id;
     responseCount = data.response_count;
     gameStarted = data.game_started;
