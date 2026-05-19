@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Akademi Sihir Qithmir</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="app">
+  <!-- Title Screen -->
+  <div id="title-screen" class="screen">
+    <div class="crystal-ball">
+      <div class="crystal-glow"></div>
+      <div class="crystal-inner">✦</div>
+    </div>
+    <h1 class="game-title">Akademi Sihir<br><span class="title-sub">Qithmir</span></h1>
+    <p class="title-desc">RPG Text-Based | Lughotul Arobiyyah</p>
+    <p class="title-tagline">"Kuasa sihir tersembunyi dalam setiap kata bahasa Arab"</p>
+    <button id="btn-play" class="btn-magic">Mulai Permainan</button>
+  </div>
+
+  <!-- Game Screen -->
+  <div id="game-screen" class="screen hidden">
+    <div id="game-header">
+      <div class="header-top">
+        <span class="session-info" id="session-id-display">Sesi: —</span>
+        <span class="session-info" id="response-counter">Respon: 0/150</span>
+      </div>
+      <div class="header-divider"></div>
+    </div>
+
+    <div id="chat-container">
+      <div id="chat-messages"></div>
+      <div id="loading-indicator" class="hidden">
+        <div class="loading-dots">
+          <span></span><span></span><span></span>
+        </div>
+        <span>Narator sedang meramu kata-kata...</span>
+      </div>
+    </div>
+
+    <div id="input-area">
+      <textarea id="player-input" placeholder="Tulis aksi atau mantra Arabmu..." rows="2" disabled></textarea>
+      <button id="btn-send" class="btn-magic small" disabled>Kirim</button>
+    </div>
+  </div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
