@@ -28,7 +28,7 @@ LLM_ENDPOINT = f"{LLM_BASE_URL.rstrip('/')}/chat/completions"
 APP_HOST = os.environ.get("HOST", "0.0.0.0")
 APP_PORT = int(os.environ.get("PORT", "8000"))
 DATA_DIR = Path(os.environ.get("DATA_DIR", "./data"))
-FRONTEND_DIR = Path(__file__).parent.parent / "frontend"
+FRONTEND_DIR = Path(__file__).parent / "frontend" if (Path(__file__).parent / "frontend").exists() else Path(__file__).parent.parent / "frontend"
 DATA_DIR.mkdir(parents=True, exist_ok=True)
 
 app = FastAPI(title="Akademi Sihir Qithmir")
