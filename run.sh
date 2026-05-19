@@ -6,16 +6,18 @@ PORT=${1:-8000}
 APP_DIR="$(cd "$(dirname "$0")" && pwd)"
 VENV_PYTHON="/home/zevara/.hermes/hermes-agent/venv/bin/python3"
 
-# Load OpenRouter API key from Hermes env
-export OPENROUTER_API_KEY="$(grep OPENROUTER_API_KEY /home/zevara/.hermes/.env | cut -d= -f2-)"
-export OPENROUTER_MODEL="${OPENROUTER_MODEL:-anthropic/claude-sonnet-4}"
+# Extract DeepSeek API key from Hermes config
+DEEPSEEK_KEY=$(grep -A4 "deepseek" /home/zevara/.hermes/config.yaml | grep api_key | head -1 | cut -d: -f2- | tr -d ' "')
+export DEEPSEEK_API_KEY="$DEEPSEEK_KEY"
+export LLM_MODEL="${LLM_MODEL:-deepseek-chat}"
 export DATA_DIR="${APP_DIR}/data"
 
 mkdir -p "$DATA_DIR"
 
 echo "🚀 Akademi Sihir Qithmir — Starting on port $PORT"
-echo "📦 Model: $OPENROUTER_MODEL"
+echo "📦 Model: $LLM_MODEL"
 echo "📁 Data: $DATA_DIR"
+echo "✅ API key: configured"
 
 cd "$APP_DIR/backend" && exec "$VENV_PYTHON" -m uvicorn main:app \
   --host 0.0.0.0 \

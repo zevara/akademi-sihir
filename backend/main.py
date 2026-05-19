@@ -20,9 +20,11 @@ from game_prompt import GAME_SYSTEM_PROMPT
 
 # ─── Config ───────────────────────────────────────────────────────────────────
 
-OPENROUTER_API_KEY = os.environ.get("OPENROUTER_API_KEY", "")
-OPENROUTER_MODEL = os.environ.get("OPENROUTER_MODEL", "anthropic/claude-sonnet-4")
-OPENROUTER_BASE = "https://openrouter.ai/api/v1/chat/completions"
+# Try DeepSeek API first, fall back to OpenRouter
+LLM_API_KEY = os.environ.get("DEEPSEEK_API_KEY") or os.environ.get("OPENROUTER_API_KEY", "")
+LLM_MODEL = os.environ.get("LLM_MODEL", "deepseek-chat")
+LLM_BASE_URL = os.environ.get("LLM_BASE_URL", "https://api.deepseek.com/v1")
+LLM_ENDPOINT = f"{LLM_BASE_URL.rstrip('/')}/chat/completions"
 APP_HOST = os.environ.get("HOST", "0.0.0.0")
 APP_PORT = int(os.environ.get("PORT", "8000"))
 DATA_DIR = Path(os.environ.get("DATA_DIR", "./data"))
@@ -87,26 +89,24 @@ def delete_session(session_id: str):
 # ─── LLM Call ─────────────────────────────────────────────────────────────────
 
 async def call_llm(messages: list, max_tokens: int = 2048) -> str:
-    """Call OpenRouter API with the given messages."""
-    if not OPENROUTER_API_KEY:
-        raise HTTPException(status_code=500, detail="OpenRouter API key not configured")
+    """Call LLM API (DeepSeek or OpenRouter)."""
+    if not LLM_API_KEY:
+        raise HTTPException(status_code=500, detail="LLM API key not configured")
 
     headers = {
-        "Authorization": f"Bearer {OPENROUTER_API_KEY}",
+        "Authorization": f"Bearer {LLM_API_KEY}",
         "Content-Type": "application/json",
-        "HTTP-Referer": "https://github.com/zevara/akademi-sihir",
-        "X-Title": "Akademi Sihir Qithmir",
     }
 
     payload = {
-        "model": OPENROUTER_MODEL,
+        "model": LLM_MODEL,
         "messages": messages,
         "max_tokens": max_tokens,
         "temperature": 0.9,
     }
 
     async with httpx.AsyncClient(timeout=120.0) as client:
-        resp = await client.post(OPENROUTER_BASE, headers=headers, json=payload)
+        resp = await client.post(LLM_ENDPOINT, headers=headers, json=payload)
         resp.raise_for_status()
         data = resp.json()
 
@@ -120,7 +120,7 @@ async def call_llm(messages: list, max_tokens: int = 2048) -> str:
 
 @app.get("/api/health")
 async def health():
-    return {"status": "ok", "model": OPENROUTER_MODEL}
+    return {"status": "ok", "model": LLM_MODEL}
 
 @app.post("/api/start")
 async def start_game(req: StartRequest):
