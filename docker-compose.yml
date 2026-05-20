@@ -6,12 +6,12 @@ services:
     container_name: akademi-sihir
     restart: unless-stopped
     ports:
-      - "8000:8000"
+      - "127.0.0.1:8000:8000"  # Only accessible via nginx reverse proxy
     environment:
       - OPENROUTER_API_KEY=${OPENROUTER_API_KEY}
       - OPENROUTER_MODEL=anthropic/claude-sonnet-4
       - DATA_DIR=/app/data
-      - HOST=0.0.0.0
+      - HOST=0.0.0.0  # Inside container, still 0.0.0.0 works
       - PORT=8000
     volumes:
       - game_data:/app/data

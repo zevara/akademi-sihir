@@ -20,7 +20,7 @@ echo "📁 Data: $DATA_DIR"
 echo "✅ API key: configured"
 
 cd "$APP_DIR/backend" && exec "$VENV_PYTHON" -m uvicorn main:app \
-  --host 0.0.0.0 \
+  --host 127.0.0.1 \
   --port "$PORT" \
   --workers 1 \
   --log-level info

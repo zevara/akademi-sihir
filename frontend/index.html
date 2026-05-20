@@ -4,55 +4,121 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Akademi Sihir Qithmir</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=MedievalSharp&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
 <div id="app">
-  <!-- Title Screen -->
-  <div id="title-screen" class="screen">
-    <div class="crystal-ball">
-      <div class="crystal-glow"></div>
-      <div class="crystal-inner">✦</div>
+
+  <!-- TITLE -->
+  <div id="title-screen" class="screen active">
+    <div class="container title-container">
+      <div class="crystal-ball">
+        <div class="crystal-glow"></div>
+        <div class="crystal-inner">✦</div>
+      </div>
+      <h1 class="game-title">Akademi Sihir<br><span class="title-sub">Qithmir</span></h1>
+      <p class="title-desc">RPG Text-Based | Lughotul Arobiyyah</p>
+      <p class="title-tagline">"Kuasa sihir tersembunyi dalam setiap kata bahasa Arab"</p>
+      <button id="btn-play" class="btn-magic">Mulai Permainan</button>
     </div>
-    <h1 class="game-title">Akademi Sihir<br><span class="title-sub">Qithmir</span></h1>
-    <p class="title-desc">RPG Text-Based | Lughotul Arobiyyah</p>
-    <p class="title-tagline">"Kuasa sihir tersembunyi dalam setiap kata bahasa Arab"</p>
-    <button id="btn-play" class="btn-magic">Mulai Permainan</button>
   </div>
 
-  <!-- Game Screen -->
-  <div id="game-screen" class="screen hidden">
-    <div id="game-header">
-      <div class="header-top">
-        <span class="session-info" id="session-id-display">Sesi: —</span>
-        <span class="session-info" id="response-counter">Respon: 0/150</span>
+  <!-- NAME INPUT -->
+  <div id="name-screen" class="screen">
+    <div class="container name-container">
+      <div class="rpg-hud-top">
+        <div class="hud-title">✦ Akademi Sihir Qithmir ✦</div>
       </div>
-      <div class="header-divider"></div>
-    </div>
-
-    <div id="chat-container">
-      <div id="chat-messages"></div>
-      <div id="loading-indicator" class="hidden">
-        <div class="loading-dots">
-          <span></span><span></span><span></span>
+      <div class="scroll-panel">
+        <p class="scroll-text">Hai, calon penyihir! Sebelum memulai petualanganmu,<br>beritahu kami namamu...</p>
+        <div class="input-group">
+          <input type="text" id="name-input" class="rpg-input" placeholder="Masukkan namamu..." maxlength="30" autocomplete="off">
+          <button id="btn-start" class="btn-rpg">Mulai Petualangan</button>
         </div>
-        <span>Narator sedang meramu kata-kata...</span>
       </div>
     </div>
+  </div>
 
-    <div id="input-area">
-      <textarea id="player-input" placeholder="Atau ketik aksi manual / mantra Arab..." rows="2" disabled></textarea>
-      <button id="btn-send" class="btn-magic small" disabled>Kirim</button>
-    </div>
+  <!-- GAME SCREEN -->
+  <div id="game-screen" class="screen">
+    <div class="container game-container">
 
-    <!-- Choice Buttons -->
-    <div id="choices-container" class="hidden">
-      <div class="choices-label">✦ Pilih aksimu:</div>
-      <div id="choices-buttons"></div>
+      <!-- HUD -->
+      <div class="rpg-hud-top" id="rpg-hud-top">
+        <div class="hud-title-row">
+          <span class="hud-title">✦ Akademi Sihir Qithmir ✦</span>
+          <span class="hud-level" id="hud-level">LV.1</span>
+        </div>
+        <div class="hud-stats-row" id="hud-stats-row" style="display:none;">
+          <div class="hud-player-name" id="hud-player-name"></div>
+          <div class="hud-race" id="hud-race"></div>
+          <div class="hud-status" id="hud-status">Status: Normal</div>
+        </div>
+        <div class="hud-bars">
+          <div class="hud-bar-row">
+            <span class="bar-label">HP</span>
+            <div class="bar-track" id="hp-bar-track">
+              <div class="bar-fill hp-fill" id="hp-fill" style="width:100%"></div>
+            </div>
+            <span class="bar-text" id="hp-text">20/20</span>
+          </div>
+          <div class="hud-bar-row">
+            <span class="bar-label">EXP</span>
+            <div class="bar-track exp-track" id="exp-bar-track">
+              <div class="bar-fill exp-fill" id="exp-fill" style="width:0%"></div>
+            </div>
+            <span class="bar-text" id="exp-text">0/50</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- CHAT HISTORY -->
+      <div id="chat-history" class="chat-history"></div>
+
+      <!-- SIDEBAR -->
+      <div class="game-sidebar" id="game-sidebar">
+        <div class="sidebar-panel panel-inventory">
+          <div class="panel-title">📦 Inventori</div>
+          <div class="panel-body" id="panel-inventory">
+            <div class="coin-display">🪙 Koin: <span id="hud-coins">0</span></div>
+            <div class="item-list" id="item-list">🎒 (kosong)</div>
+          </div>
+        </div>
+        <div class="sidebar-panel panel-party">
+          <div class="panel-title">👥 Tim</div>
+          <div class="panel-body" id="panel-party">(Kosong)</div>
+        </div>
+        <div class="sidebar-panel panel-enemy">
+          <div class="panel-title">👹 Musuh</div>
+          <div class="panel-body" id="panel-enemy">(Kosong)</div>
+        </div>
+      </div>
+
+      <!-- INPUT AREA -->
+      <div class="game-actions" id="game-actions">
+        <div class="input-area">
+          <input type="text" id="custom-input" class="rpg-input" placeholder="✍️ Ketik aksimu di sini..." autocomplete="off">
+          <button id="btn-custom-send" class="btn-rpg">Kirim</button>
+        </div>
+        <div class="spell-area">
+          <div class="spell-label">🔮 Mantra Sihir (Bahasa Arab)</div>
+          <div class="spell-input-row">
+            <input type="text" id="spell-input" class="rpg-input spell-input" placeholder="اكتب تعويذة بالعربية..." autocomplete="off" dir="rtl">
+            <button id="btn-spell-cast" class="btn-rpg btn-spell">⤵ Lontarkan</button>
+          </div>
+        </div>
+        <div id="loading-indicator" class="loading-indicator" style="display:none;">
+          <span class="loading-spinner"></span> AI sedang merespon...
+        </div>
+      </div>
+
     </div>
   </div>
-</div>
 
+</div>
 <script src="script.js"></script>
 </body>
 </html>
