@@ -296,6 +296,47 @@ async def reset_session(session_id: str):
     delete_session(session_id)
     return {"status": "deleted"}
 
+@app.get("/api/session/{session_id}")
+async def get_session(session_id: str):
+    """Get session info for restoring after page refresh."""
+    state = load_session(session_id)
+    if not state:
+        raise HTTPException(status_code=404, detail="Session not found")
+
+    # Get the last assistant message as the response
+    last_response = ""
+    for msg in reversed(state.messages):
+        if msg["role"] == "assistant":
+            last_response = msg["content"]
+            break
+
+    # Also get player stats from the last response
+    stats = _parse_player_stats(last_response) if last_response else {}
+
+    # Merge with session state
+    if state.player_name:
+        stats["player_name"] = state.player_name
+    if state.player_race:
+        stats["race"] = state.player_race
+
+    return {
+        "response": last_response or "Selamat datang kembali!",
+        "response_count": state.response_count,
+        "game_started": state.game_started,
+        "player_name": state.player_name or stats.get("player_name", ""),
+        "race": state.player_race or stats.get("race", ""),
+        "level": stats.get("level", 1),
+        "hp": stats.get("hp", 20),
+        "max_hp": stats.get("max_hp", 20),
+        "exp": stats.get("exp", 0),
+        "exp_to_next": stats.get("exp_to_next", 50),
+        "status": stats.get("status", "Normal"),
+        "coins": stats.get("coins", 0),
+        "inventory": stats.get("inventory", []),
+        "party_members": stats.get("party_members", []),
+        "enemies": stats.get("enemies", []),
+    }
+
 # ─── Helpers ──────────────────────────────────────────────────────────────────
 
 def _trim_messages(state: SessionState):
