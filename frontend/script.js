@@ -155,43 +155,29 @@ function showLoading(show) {
   btnCustomSend.disabled = show;
 }
 
-// --- Check saved session on load ---
-async function checkSavedSession() {
+// --- Restore session from localStorage ---
+async function restoreSession() {
   const saved = localStorage.getItem(LS_KEY);
-  if (!saved) return;
+  if (!saved) return false;
   try {
     const { session_id, player_name } = JSON.parse(saved);
-    if (!session_id) return;
+    if (!session_id) return false;
+    // Check if session still valid on backend
     const resp = await fetch(`${API_BASE}/api/session/${session_id}`);
-    if (!resp.ok) { localStorage.removeItem(LS_KEY); return; }
+    if (!resp.ok) {
+      localStorage.removeItem(LS_KEY);
+      return false;
+    }
     const data = await resp.json();
-    // Show resume button
-    const btnResume = $('#btn-resume');
-    btnResume.style.display = 'inline-block';
-    btnResume.textContent = `▶ Lanjutkan (${data.player_name || player_name || '???'})`;
-    btnResume.dataset.sessionId = session_id;
+    sessionId = session_id;
+    showScreen(gameScreen);
+    processResponse(data);
+    return true;
   } catch (e) {
     localStorage.removeItem(LS_KEY);
+    return false;
   }
 }
-
-// Resume button click
-$('#btn-resume').addEventListener('click', async () => {
-  const btn = $('#btn-resume');
-  const sid = btn.dataset.sessionId;
-  if (!sid) return;
-  sessionId = sid;
-  showScreen(gameScreen);
-  showLoading(true);
-  try {
-    const resp = await fetch(`${API_BASE}/api/session/${sid}`);
-    const data = await resp.json();
-    processResponse(data);
-  } catch (err) {
-    addChat(`❌ Gagal load session: ${err.message}`, 'error');
-    showLoading(false);
-  }
-});
 
 // ================================================
 // EVENT LISTENERS
@@ -271,6 +257,6 @@ spellInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') { sendAct
 btnSpellCast.addEventListener('click', () => { sendAction(spellInput.value.trim()); spellInput.value = ''; });
 
 // ================================================
-// CHECK SAVED SESSION on page load
+// AUTO-RESTORE on page load
 // ================================================
-checkSavedSession();
+restoreSession();
