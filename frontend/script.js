@@ -76,9 +76,33 @@ function updateHUD(data) {
   hudStatus.style.color = (status === 'Normal' || status === 'Sehat') ? '#2ecc71' : status.includes('Luka') ? '#e74c3c' : '#f1c40f';
   hudCoins.textContent = data.coins || 0;
   const inv = data.inventory || [];
-  itemList.innerHTML = inv.length === 0 ? '🎒 (kosong)' : inv.map(i => `<div class="inv-item">• ${i}</div>`).join('');
-  panelParty.innerHTML = (data.party_members || []).length === 0 ? '(Kosong)' : data.party_members.map(m => `<div class="party-member">👤 ${m}</div>`).join('');
-  panelEnemy.innerHTML = (data.enemies || []).length === 0 ? '(Kosong)' : data.enemies.map(e => `<div class="enemy-unit">👹 ${e}</div>`).join('');
+  const invStrip = $('#hud-inv-strip');
+  if (data.game_started && data.inventory) {
+    invStrip.style.display = '';
+    if (inv.length === 0) {
+      itemList.innerHTML = '🎒 (kosong)';
+    } else {
+      itemList.innerHTML = inv.map(i => `<span class="inv-item">${i}</span>`).join(' <span class="inv-sep">·</span> ');
+    }
+  } else {
+    invStrip.style.display = 'none';
+  }
+  // Party strip
+  const partyStrip = $('#hud-party-strip');
+  if (data.party_members && data.party_members.length > 0) {
+    partyStrip.style.display = '';
+    panelParty.innerHTML = data.party_members.map(m => `<span class="party-member">${m}</span>`).join(' ');
+  } else {
+    partyStrip.style.display = 'none';
+  }
+  // Enemy strip
+  const enemyStrip = $('#hud-enemy-strip');
+  if (data.enemies && data.enemies.length > 0) {
+    enemyStrip.style.display = '';
+    panelEnemy.innerHTML = data.enemies.map(e => `<span class="enemy-unit">${e}</span>`).join(' ');
+  } else {
+    enemyStrip.style.display = 'none';
+  }
 }
 
 // --- Chat log ---

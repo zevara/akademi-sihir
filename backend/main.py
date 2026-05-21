@@ -134,6 +134,11 @@ async def start_game(req: StartRequest):
 
     player_input = req.player_input.strip()
 
+    # Default stats for new game
+    save_stats = {"level": 1, "hp": 20, "max_hp": 20, "exp": 0,
+                  "exp_to_next": 50, "status": "Normal", "coins": 0,
+                  "inventory": [], "party_members": [], "enemies": []}
+
     # Check if input looks like save data
     if player_input.startswith("Save Data") or player_input.startswith("Nama Player"):
         # Load from save data - extract name if possible

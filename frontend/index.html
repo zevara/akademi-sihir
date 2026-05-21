@@ -87,29 +87,26 @@
             <span class="bar-text" id="exp-text">0/50</span>
           </div>
         </div>
+        <!-- INVENTORY STRIP -->
+        <div class="hud-inv-strip" id="hud-inv-strip" style="display:none;">
+          <span class="inv-coin">🪙 <span id="hud-coins">0</span></span>
+          <span class="inv-sep">│</span>
+          <span class="inv-items" id="item-list">🎒 (kosong)</span>
+        </div>
+        <!-- PARTY STRIP -->
+        <div class="hud-side-strip" id="hud-party-strip" style="display:none;">
+          <span class="strip-label">👥</span>
+          <span class="strip-items" id="panel-party">(kosong)</span>
+        </div>
+        <!-- ENEMY STRIP -->
+        <div class="hud-side-strip hud-enemy" id="hud-enemy-strip" style="display:none;">
+          <span class="strip-label">👹</span>
+          <span class="strip-items" id="panel-enemy">(kosong)</span>
+        </div>
       </div>
 
       <!-- CHAT HISTORY -->
       <div id="chat-history" class="chat-history"></div>
-
-      <!-- SIDEBAR -->
-      <div class="game-sidebar" id="game-sidebar">
-        <div class="sidebar-panel panel-inventory">
-          <div class="panel-title">📦 Inventori</div>
-          <div class="panel-body" id="panel-inventory">
-            <div class="coin-display">🪙 Koin: <span id="hud-coins">0</span></div>
-            <div class="item-list" id="item-list">🎒 (kosong)</div>
-          </div>
-        </div>
-        <div class="sidebar-panel panel-party">
-          <div class="panel-title">👥 Tim</div>
-          <div class="panel-body" id="panel-party">(Kosong)</div>
-        </div>
-        <div class="sidebar-panel panel-enemy">
-          <div class="panel-title">👹 Musuh</div>
-          <div class="panel-body" id="panel-enemy">(Kosong)</div>
-        </div>
-      </div>
 
       <!-- INPUT AREA -->
       <div class="game-actions" id="game-actions">

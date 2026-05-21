@@ -240,12 +240,12 @@ html, body {
 }
 .game-container {
   display: grid;
-  grid-template-columns: 1fr 240px;
+  grid-template-columns: 1fr;
   grid-template-rows: auto 1fr auto;
   gap: 0;
   width: 100%;
   height: 100vh;
-  max-width: 1200px;
+  max-width: 900px;
   margin: 0 auto;
   padding: 0;
   position: relative;
@@ -349,6 +349,79 @@ html, body {
   width: 70px;
   text-align: right;
   white-space: nowrap;
+}
+
+/* ─── Inventory Strip ──────────────────────────────────────────── */
+.hud-inv-strip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 0 2px;
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+  border-top: 1px solid rgba(255,255,255,0.06);
+  margin-top: 4px;
+  flex-wrap: wrap;
+}
+.inv-coin {
+  color: var(--gold);
+  font-weight: 600;
+  white-space: nowrap;
+}
+.inv-sep {
+  color: var(--border-color);
+  opacity: 0.4;
+}
+.inv-items {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.inv-item {
+  background: rgba(123,77,255,0.12);
+  padding: 1px 8px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  color: var(--cyan);
+  white-space: nowrap;
+}
+
+/* ─── Party & Enemy Strips ─────────────────────────────────────── */
+.hud-side-strip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 0;
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  flex-wrap: wrap;
+}
+.hud-side-strip.hud-enemy {
+  border-top: 1px solid rgba(255,68,102,0.08);
+}
+.strip-label {
+  font-size: 0.8rem;
+  opacity: 0.7;
+}
+.strip-items {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+  align-items: center;
+  font-size: 0.75rem;
+}
+.strip-items .party-member {
+  background: rgba(46,204,113,0.1);
+  padding: 0 8px;
+  border-radius: 4px;
+  color: #2ecc71;
+}
+.strip-items .enemy-unit {
+  background: rgba(255,68,102,0.1);
+  padding: 0 8px;
+  border-radius: 4px;
+  color: #ff4466;
 }
 
 /* --- MAIN CONTENT (page-based) --- */
@@ -506,49 +579,6 @@ html, body {
   background: linear-gradient(135deg, var(--purple) 0%, #5a2dcc 100%) !important;
   font-family: 'MedievalSharp', serif;
   white-space: nowrap;
-}
-
-/* --- RIGHT SIDEBAR --- */
-.game-sidebar {
-  grid-column: 2;
-  grid-row: 2;
-  background: #0d0d1a;
-  border-left: 1px solid var(--border-color);
-  padding: 12px;
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-.sidebar-panel {
-  background: var(--bg-card);
-  border: 1px solid var(--border-color);
-  border-radius: 8px;
-  overflow: hidden;
-}
-.panel-title {
-  background: linear-gradient(90deg, #1a1a30, #12122a);
-  padding: 6px 10px;
-  font-size: 0.75rem;
-  color: var(--gold-dim);
-  border-bottom: 1px solid var(--border-color);
-  font-weight: 600;
-  letter-spacing: 1px;
-}
-.panel-body {
-  padding: 8px 10px;
-  font-size: 0.78rem;
-  color: var(--text-secondary);
-  min-height: 30px;
-}
-.coin-display {
-  color: var(--gold);
-  font-weight: 600;
-  font-size: 0.85rem;
-  margin-bottom: 4px;
-}
-.item-list {
-  font-size: 0.78rem;
 }
 
 /* --- CHOICES / ACTIONS --- */
@@ -735,23 +765,7 @@ html, body {
 @media (max-width: 768px) {
   .game-container {
     grid-template-columns: 1fr;
-    grid-template-rows: auto auto 1fr auto;
-  }
-  .game-sidebar {
-    grid-column: 1;
-    grid-row: 4;
-    display: flex !important;
-    flex-direction: row;
-    flex-wrap: wrap;
-    gap: 6px;
-    padding: 8px 12px;
-    border-left: none;
-    border-top: 1px solid var(--border-color);
-    background: var(--bg-secondary);
-  }
-  .sidebar-panel {
-    flex: 1;
-    min-width: 120px;
+    grid-template-rows: auto 1fr auto;
   }
   .game-content {
     padding: 16px;
@@ -775,11 +789,23 @@ html, body {
   .hud-title {
     font-size: 0.8rem;
   }
+  .hud-stats-row {
+    font-size: 0.7rem;
+    gap: 4px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .hud-player-name {
+    font-size: 0.8rem;
+  }
+  .hud-level {
+    font-size: 0.7rem;
+  }
   .hud-bar-row .bar-label {
     font-size: 0.6rem;
     width: 24px;
   }
-  .hud-bar-row .bar-text {
+  .hud-bar-row  .bar-text {
     font-size: 0.55rem;
     width: 50px;
   }
@@ -789,12 +815,22 @@ html, body {
   }
   .input-area {
     max-width: 100%;
+    flex-direction: column;
+  }
+  .input-area .btn-rpg {
+    width: 100%;
   }
   .spell-area {
     max-width: 100%;
   }
+  .spell-input-row {
+    flex-direction: column;
+  }
   .spell-input {
     font-size: 1rem !important;
+  }
+  .btn-spell {
+    width: 100%;
   }
   .btn-magic {
     padding: 0.8rem 1.5rem;
@@ -832,21 +868,6 @@ html, body {
   .hud-level {
     font-size: 0.7rem;
   }
-  .game-sidebar {
-    padding: 6px 8px;
-    gap: 4px;
-  }
-  .sidebar-panel {
-    min-width: 100px;
-  }
-  .panel-title {
-    font-size: 0.65rem;
-    padding: 4px 8px;
-  }
-  .panel-body {
-    font-size: 0.65rem;
-    padding: 4px 8px;
-  }
   .spell-input-row {
     flex-direction: column;
   }
@@ -881,7 +902,7 @@ html, body {
 .scroll-bottom-btn {
   position: fixed;
   bottom: 100px;
-  right: 260px;
+  right: 20px;
   width: 36px;
   height: 36px;
   border-radius: 50%;
@@ -909,7 +930,7 @@ html, body {
 }
 @media (max-width: 768px) {
   .scroll-bottom-btn {
-    right: 20px;
+    right: 16px;
     bottom: 100px;
   }
 }
