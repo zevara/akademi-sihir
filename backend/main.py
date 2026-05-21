@@ -162,6 +162,8 @@ async def start_game(req: StartRequest):
         narrative, choices = _parse_choices(reply)
         state.messages.append({"role": "assistant", "content": reply})
         state.response_count = 1
+        # Parse actual stats from save data
+        save_stats = _parse_save_data(player_input)
     else:
         # New game — backend-managed 5 questions one at a time
         state.player_name = player_input
@@ -181,9 +183,16 @@ async def start_game(req: StartRequest):
         "question_phase": state.question_phase,
         "player_name": state.player_name,
         "race": state.player_race,
-        "level": 1, "hp": 20, "max_hp": 20,
-        "exp": 0, "exp_to_next": 50, "status": "Normal",
-        "coins": 0, "inventory": [], "party_members": [], "enemies": [],
+        "level": save_stats.get("level", 1),
+        "hp": save_stats.get("hp", 20),
+        "max_hp": save_stats.get("max_hp", 20),
+        "exp": save_stats.get("exp", 0),
+        "exp_to_next": save_stats.get("exp_to_next", 50),
+        "status": save_stats.get("status", "Normal"),
+        "coins": save_stats.get("coins", 0),
+        "inventory": save_stats.get("inventory", []),
+        "party_members": save_stats.get("party_members", []),
+        "enemies": save_stats.get("enemies", []),
     }
 
 @app.post("/api/action")
@@ -195,10 +204,33 @@ async def take_action(req: ActionRequest):
 
     # Check response limit
     if state.response_count >= 150:
+        # Ask AI to generate final review + save data
+        state.messages.append({"role": "user", "content": _wrap_player_action(
+            "Ini adalah respon ke-150. Game telah selesai. "
+            "Beri ulasan perjalanan player selama di Akademi Sihir Qithmir, "
+            "berikan penilaian sistem terhadap pencapaian player, "
+            "dan tulis save data dengan format berikut:\n\n"
+            "Save Data Player\n\n"
+            "Nama Player:...|Ras:...|Kesiapan: HP(X/Y),EXP(X/Y),LV(X),Status(...)|Inventori: Koin (X), Item 1.(...) 2.(...)|\n"
+            "Latar: Latar waktu (X/Y/Z), Latar tempat (...), Latar peristiwa terakhir (...)\n"
+            "Status Tim (jika ada): ...\n"
+            "Status Lawan (jika ada): ...\n"
+            "Catatan penting peristiwa yang telah terjadi selama permainan:...\n"
+            "Catatan pencapaian player:...\n"
+            "Catatan karakter player dan tokoh yang memiliki kedekatan:..."
+        )})
+        reply = await call_llm(state.messages, max_tokens=2048)
+        state.messages.append({"role": "assistant", "content": reply})
+        save_session(state)
         return {
-            "response": "Permainan telah mencapai batas 150 respon. Game selesai! Silakan mulai game baru.",
+            "response": reply,
             "game_over": True,
             "response_count": 150,
+            "player_name": state.player_name,
+            "race": state.player_race,
+            "level": 1, "hp": 20, "max_hp": 20,
+            "exp": 0, "exp_to_next": 50, "status": "Normal",
+            "coins": 0, "inventory": [],
         }
 
     state.response_count += 1
@@ -569,6 +601,54 @@ def _parse_player_stats(text: str) -> dict:
                     if m2:
                         result["enemies"].append(m2.group(1).strip())
 
+    return result
+
+
+def _parse_save_data(text: str) -> dict:
+    """Extract player stats from save data text.
+
+    Parses format:
+    Nama Player:...|Ras:...|Kesiapan: HP(X/Y),EXP(X/Y),LV(X),Status(...)|Inventori: Koin (X), Item 1.(...) 2.(...)|
+    """
+    import re
+    result = {"level": 1, "hp": 20, "max_hp": 20, "exp": 0,
+              "exp_to_next": 50, "status": "Normal", "coins": 0,
+              "inventory": [], "party_members": [], "enemies": []}
+
+    # Parse kesiapan: HP(20/40), EXP(30/100), LV(3), Status(Normal)
+    m = re.search(r'HP\s*\((\d+)/(\d+)\)', text)
+    if m:
+        result["hp"] = int(m.group(1))
+        result["max_hp"] = int(m.group(2))
+    m = re.search(r'EXP\s*\((\d+)/(\d+)\)', text)
+    if m:
+        result["exp"] = int(m.group(1))
+        result["exp_to_next"] = int(m.group(2))
+    m = re.search(r'LV\s*\((\d+)\)', text)
+    if m:
+        result["level"] = int(m.group(1))
+    m = re.search(r'Status\s*\((.+?)\)', text)
+    if m:
+        s = m.group(1).strip()
+        if s not in ('Nama', 'Player'):
+            result["status"] = s
+    # Coins: Koin (50) or Koin:50
+    m = re.search(r'Koin\s*[(:]\s*(\d+)', text)
+    if m:
+        result["coins"] = int(m.group(1))
+    # Items: Item 1.(name) 2.(name) or just 1.(name) 2.(name)
+    items = re.findall(r'(?:\d+\.\s*)?\(([^)]+)\)', text)
+    filtered = []
+    for i in items:
+        i = i.strip()
+        if i and not any(x in i.lower() for x in ['nama', 'player', 'ras', 'latar', 'koin', 'hp', 'exp', 'lv', 'status', 'catatan', 'item']):
+            filtered.append(i)
+    if filtered:
+        result["inventory"] = filtered
+    # Party members
+    members = re.findall(r'Status Tim[^:]*:\s*(.+?)(?:\n|$)', text, re.DOTALL)
+    # Enemies
+    enemies = re.findall(r'Status Lawan[^:]*:\s*(.+?)(?:\n|$)', text, re.DOTALL)
     return result
 
 

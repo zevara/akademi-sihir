@@ -13,6 +13,12 @@ const gameScreen = $('#game-screen');
 const nameInput = $('#name-input');
 const btnPlay = $('#btn-play');
 const btnStart = $('#btn-start');
+const saveDataInput = $('#save-data-input');
+const btnLoad = $('#btn-load');
+const tabNew = $('#tab-new');
+const tabLoad = $('#tab-load');
+const panelNew = $('#panel-new');
+const panelLoad = $('#panel-load');
 const pageContent = $('#page-content');
 const loadingIndicator = $('#loading-indicator');
 const customInput = $('#custom-input');
@@ -134,7 +140,8 @@ function processResponse(data) {
   }
   if (data.response) addChat(data.response, 'narrative');
   if (data.game_over) {
-    addChat('🏆 Permainan selesai!', 'system');
+    addChat('🏆 **Permainan Selesai!**', 'system');
+    addChat('Save data ada di atas. Copy teksnya untuk melanjutkan lain kali! 📋', 'system');
     localStorage.removeItem(LS_KEY);
   }
   customInput.focus();
@@ -177,6 +184,17 @@ async function restoreSession() {
 // ================================================
 
 btnPlay.addEventListener('click', () => showScreen(nameScreen));
+
+// Tab switching
+tabNew.addEventListener('click', () => {
+  tabNew.classList.add('active'); tabLoad.classList.remove('active');
+  panelNew.style.display = ''; panelLoad.style.display = 'none';
+});
+tabLoad.addEventListener('click', () => {
+  tabLoad.classList.add('active'); tabNew.classList.remove('active');
+  panelLoad.style.display = ''; panelNew.style.display = 'none';
+  saveDataInput.focus();
+});
 nameInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') btnStart.click(); });
 
 btnStart.addEventListener('click', async () => {
@@ -202,6 +220,33 @@ btnStart.addEventListener('click', async () => {
     processResponse(data);
   } catch (err) {
     addChat(`❌ Gagal memulai: ${err.message}`, 'error');
+    showLoading(false);
+  }
+});
+
+// Load game from save data
+btnLoad.addEventListener('click', async () => {
+  const saveText = saveDataInput.value.trim();
+  if (!saveText) return;
+  showScreen(gameScreen);
+  showLoading(true);
+  try {
+    const resp = await fetch(`${API_BASE}/api/start`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ player_input: saveText })
+    });
+    const data = await resp.json();
+    if (data.session_id) {
+      sessionId = data.session_id;
+      localStorage.setItem(LS_KEY, JSON.stringify({
+        session_id: data.session_id,
+        player_name: data.player_name || ''
+      }));
+    }
+    processResponse(data);
+  } catch (err) {
+    addChat(`❌ Gagal load: ${err.message}`, 'error');
     showLoading(false);
   }
 });

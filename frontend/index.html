@@ -26,17 +26,31 @@
     </div>
   </div>
 
-  <!-- NAME INPUT -->
+  <!-- NAME / LOAD INPUT -->
   <div id="name-screen" class="screen">
     <div class="container name-container">
       <div class="rpg-hud-top">
         <div class="hud-title">✦ Akademi Sihir Qithmir ✦</div>
       </div>
       <div class="scroll-panel">
-        <p class="scroll-text">Hai, calon penyihir! Sebelum memulai petualanganmu,<br>beritahu kami namamu...</p>
-        <div class="input-group">
-          <input type="text" id="name-input" class="rpg-input" placeholder="Masukkan namamu..." maxlength="30" autocomplete="off">
-          <button id="btn-start" class="btn-rpg">Mulai Petualangan</button>
+        <!-- Tab buttons -->
+        <div class="load-tabs">
+          <button id="tab-new" class="tab-btn active">✨ Main Baru</button>
+          <button id="tab-load" class="tab-btn">📂 Load Game</button>
+        </div>
+        <!-- New Game -->
+        <div id="panel-new">
+          <p class="scroll-text">Hai, calon penyihir! Sebelum memulai petualanganmu,<br>beritahu kami namamu...</p>
+          <div class="input-group">
+            <input type="text" id="name-input" class="rpg-input" placeholder="Masukkan namamu..." maxlength="30" autocomplete="off">
+            <button id="btn-start" class="btn-rpg">Mulai Petualangan</button>
+          </div>
+        </div>
+        <!-- Load Game -->
+        <div id="panel-load" style="display:none;">
+          <p class="scroll-text">Tempel save data yang kamu copy sebelumnya<br>untuk melanjutkan petualangan...</p>
+          <textarea id="save-data-input" class="rpg-input save-textarea" placeholder="Tempel save data di sini..." rows="6"></textarea>
+          <button id="btn-load" class="btn-rpg">🔄 Load Game</button>
         </div>
       </div>
     </div>

@@ -671,6 +671,44 @@ html, body {
   white-space: nowrap;
 }
 
+/* ─── Load Game Tabs ──────────────────────────────────────────── */
+.load-tabs {
+  display: flex;
+  gap: 0;
+  margin-bottom: 16px;
+  border-bottom: 2px solid var(--border-color);
+}
+.tab-btn {
+  flex: 1;
+  padding: 10px;
+  background: transparent;
+  border: none;
+  color: var(--text-dim);
+  font-family: 'MedievalSharp', serif;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.3s;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+}
+.tab-btn.active {
+  color: var(--gold);
+  border-bottom-color: var(--gold);
+  background: rgba(212,168,67,0.05);
+}
+.tab-btn:hover {
+  color: var(--text);
+}
+.save-textarea {
+  resize: vertical;
+  min-height: 100px;
+  font-family: monospace !important;
+  font-size: 0.8rem !important;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
 /* Loading indicator */
 .loading-indicator {
   text-align: center;
